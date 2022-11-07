@@ -246,10 +246,9 @@ void modifyFilePassword(vector<FAT>& fat) {
 	}
 	FAT* entry = NULL;
 	for (auto& element : fat) {
-		if (isEqual(element.fileName, t))
-		{
+		if (isEqual(element.fileName, t)){
 			char* temp = new char[8];
-			//cin.ignore();
+			cin.ignore();
 			cout << "Nhap mat khau: ";
 			fgets(temp, 8, stdin);
 
@@ -268,7 +267,6 @@ int findFile(vector<FAT> fat, char* temp) {
 		else
 			t[i] = temp[i];
 	}
-
 	FAT* entry = NULL;
 	int count = 0;
 	for (auto& element : fat) {
@@ -301,9 +299,7 @@ bool importfile(vector<FAT>& fat, LPCWSTR volumeName) {
 	char* path = new char[50];
 	cout << "nhap ten file can sao chep tren o dia (vd D:\\abc.txt): ";
 	cin >> path;
-
 	fstream f;
-
 	f.open(path, ios::in);
 	if (!f) {
 		cerr << "Loi: Khong mo duoc file." << endl;
@@ -311,8 +307,7 @@ bool importfile(vector<FAT>& fat, LPCWSTR volumeName) {
 	}
 	string data;
 	string line;
-	while (!f.eof())         
-	{
+	while (!f.eof()){
 		getline(f, line);
 		data += line;
 	}
@@ -322,7 +317,6 @@ bool importfile(vector<FAT>& fat, LPCWSTR volumeName) {
 	string fileName;
 	cout << "Dat ten file: ";
 	cin >> fileName;
-	
 	int t = 0, s=0,e=0;
 	bool isOK;
 	char* x = new char;
@@ -330,7 +324,6 @@ bool importfile(vector<FAT>& fat, LPCWSTR volumeName) {
 	strcpy(x, fileName.c_str());
 	strcpy(y, fileFormat.c_str());
 	getInfoEntry(fat.back(), t, s, e);
-	cout << t << "-" << s << "-" << e << endl;
 	FAT entry = createEntry(x, y, NULL, data.length(), e + 1 , e+1 + data.length()/512);
 	fat.push_back(entry);
 	isOK = writeFAT(fat, volumeName);
@@ -339,15 +332,15 @@ bool importfile(vector<FAT>& fat, LPCWSTR volumeName) {
 		return 0;
 	}
 	//18636
-	BYTE buffer[BPB];
-	for (int i = 0; i < data.length() ; i+=512)
-	{
-		for (int j = i; j < j + 512; j++) {
-			if (data[j] == NULL)
+	for (int i = 0; i < data.length() ; i+=512){
+		BYTE buffer[BPB];
+		for (int j = 0; j < 512; j++) {
+			if (i + j == data.length())
 				break;
 			buffer[j] = data[i+j];
 		}
 		writeBlock(e + 1 + i / 512, buffer, volumeName);
+		cout << "Writing block: " << e + 1 + i / 512 << endl;
 	}
 }
 
@@ -357,31 +350,24 @@ bool exportfile(vector<FAT> fat, LPCWSTR volumeName) {
 	char* path = new char[50];
 	cout << "nhap ten file can sao chep tren MyS (vd 123.txt): ";
 	cin >> path;
-
 	string p = path;
 	string fileFormat = p.substr(p.find(".") + 1);
 	p = p.erase(p.find("."));
 	string fileName = p;
-	
-
 	int t = 0, s = 0, e = 0;
 	char* x = new char[8];
 	char* y = new char[8];
-
 	for (int i = 0; i < 8; i++) {
 		if (fileName[i] == NULL)
 			break;
 		x[i] = fileName[i];
 	}
 	strcpy(y, fileFormat.c_str());
-
 	int pos = findFile(fat,x);
 	getInfoEntry(fat[pos], t, s, e);
-
 	BYTE* t1 = new BYTE[8];
 	char* temp = new char[8];
-	if (fat[pos].password[0] != NULL && fat[pos].password[0] != BYTE(0))
-	{
+	if (fat[pos].password[0] != NULL && fat[pos].password[0] != BYTE(0)){
 		do {
 			cout << "Nhap mat khau: ";
 			fgets(temp, 8, stdin);
@@ -389,19 +375,14 @@ bool exportfile(vector<FAT> fat, LPCWSTR volumeName) {
 				t1[i] = temp[i];
 			}
 		} while (!isEqual(fat[pos].password, t1));
-
 	}
-
-	char* data = new char[t];
 	BYTE* buffer = new BYTE[BPB];
 	int count = 0;
 	string data1;
 	int c = 0;
-	for (int i = s; i <= e; i++)
-	{
+	for (int i = s; i <= e; i++){
 		buffer = readBlock(i, volumeName);
-		for (int j = 0; j < 512; j++)
-		{
+		for (int j = 0; j < 512; j++){
 			if (data1.length() == t)
 				break;
 			data1 += buffer[j];
@@ -413,9 +394,7 @@ bool exportfile(vector<FAT> fat, LPCWSTR volumeName) {
 	fstream f;
 	f.open(newName, ios::out);
 	f.write(data1.data(), data1.length());
-
 	f.close();
-
 	return 1;
 }
 
@@ -424,20 +403,21 @@ bool exportfile(vector<FAT> fat, LPCWSTR volumeName) {
 void removeFile(vector<FAT>& fat, int pos) {
 	BYTE* t1 = new BYTE[8];
 	char* temp = new char[8];
-	if(fat[pos].password[0] != NULL && fat[pos].password[0] != BYTE(0))
-	{
-		do {
+	if(fat[pos].password[0] != NULL && fat[pos].password[0] != BYTE(0)){
+		cin.ignore();
+		while(1){
 			cout << "Nhap mat khau: ";
 			fgets(temp, 8, stdin);
 			for (int i = 0; i < 8; i++) {
 				t1[i] = temp[i];
 			}
-		} while (!isEqual(fat[pos].password, t1));
-
+			if (isEqual(fat[pos].password, t1))
+				break;
+			cout << "Nhap lai!" << endl;
+		}
 	}
 	fat.erase(fat.begin() + pos);
 }
-
 
 // Nhung ham phuc vu khac
 // Tham khao tu https://github.com/ngohuudang/mid_term_OS/blob/main/volumeMyFS/Source.cpp
@@ -465,6 +445,7 @@ int reverseByte(BYTE* byte, unsigned int count)
 		result = (result << 8) | byte[i];
 	return result;
 }
+// Tham khao tu https://github.com/ngohuudang/mid_term_OS/blob/main/volumeMyFS/Source.cpp
 BYTE* createBlankOffets(int n) {
 	BYTE* offsets = new BYTE[n];
 
@@ -473,6 +454,7 @@ BYTE* createBlankOffets(int n) {
 	}
 	return offsets;
 }
+// Tham khao tu https://github.com/ngohuudang/mid_term_OS/blob/main/volumeMyFS/Source.cpp
 BYTE* readBlock(int block, LPCWSTR fileName) {
 	DWORD bytesRead;
 	HANDLE hFile;
@@ -492,6 +474,7 @@ BYTE* readBlock(int block, LPCWSTR fileName) {
 		return buffer;
 	return NULL;
 }
+// Tham khao tu https://github.com/ngohuudang/mid_term_OS/blob/main/volumeMyFS/Source.cpp
 bool writeBlock(int block, BYTE* buffer, LPCWSTR fileName) {
 	DWORD bytesRead;
 	HANDLE hFile;
