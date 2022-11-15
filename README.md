@@ -12,5 +12,5 @@ Dành cho mục đích tham khảo, xin hãy dẫn nguồn: ```Đồ án Hệ th
 ---
 ## Reference
 [Project 06: Simple File System, University of Notre Dame](https://www3.nd.edu/~pbui/teaching/cse.30341.fa17/project06.html)  
-[C-A de Salaberry, Simple File System](https://github.com/cadesalaberry/SimpleFS)  
-[mid_term_OS, Ngô Hữu Đang](https://github.com/ngohuudang/mid_term_OS)
+[Simple File System, C-A de Salaberry](https://github.com/cadesalaberry/SimpleFS)  
+[Mid term OS, Ngô Hữu Đang](https://github.com/ngohuudang/mid_term_OS)
